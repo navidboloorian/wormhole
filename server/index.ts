@@ -1,9 +1,14 @@
 import express, { Express } from "express";
 import dotenv from "dotenv";
+import roomRouter from "./routes/room";
 
 dotenv.config();
 
-export const app: Express = express();
+const app: Express = express();
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => console.log(`Server running on port ${port}`));
+app.use(express.json());
+app.use("/room", roomRouter);
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
