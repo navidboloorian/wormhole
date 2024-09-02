@@ -1,1 +1,16 @@
-/* You can add global styles to this file, and also import other style files */
+$primary-header-font: "Major Mono Display", monospace;
+$main-font: "Golos Text", sans-serif;
+$wh-blue: #007fff;
+
+body {
+  margin: 0px;
+}
+
+h1 {
+  font-family: $primary-header-font;
+  font-size: 4rem;
+}
+
+* {
+  font-family: $main-font;
+}

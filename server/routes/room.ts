@@ -8,16 +8,7 @@ router.get("/:id", async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
   const room = await getRoom(id);
-  res.send({ status: 200, room: room });
-});
-
-router.post("/", async (req: Request, res: Response) => {
-  const { identifier } = req.body;
-
-  const success = await createRoom(identifier);
-
-  if (success) res.send({ status: 200 });
-  else res.send({ status: 404 });
+  res.status(200).send({ room: room });
 });
 
 router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
@@ -25,8 +16,17 @@ router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
 
   const success = await deleteRoom(id);
 
-  if (success) res.send({ status: 200 });
-  else res.send({ status: 404 });
+  if (success) res.status(200).send({ message: "Success" });
+  else res.status(404).send({ message: "Error" });
+});
+
+router.post("/", async (req: Request, res: Response) => {
+  const { identifier } = req.body;
+
+  const success = await createRoom(identifier);
+
+  if (success) res.status(200).send({ message: "Success" });
+  else res.status(404).send({ message: "Error" });
 });
 
 export default router;

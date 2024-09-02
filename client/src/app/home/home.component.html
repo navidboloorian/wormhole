@@ -1,0 +1,16 @@
+<div id="background-wrapper">
+  <video
+    #video
+    (canplay)="video.play()"
+    (loadedmetadata)="video.muted = true"
+    aria-hidden="true"
+    loop
+  >
+    <source src="../../assets/background.mp4" />
+  </video>
+</div>
+<main>
+  <h1>Wormhole</h1>
+  <h2>peer-to-peer video calls</h2>
+  <wh-room-form></wh-room-form>
+</main>

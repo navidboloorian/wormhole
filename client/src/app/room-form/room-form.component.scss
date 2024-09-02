@@ -1,0 +1,31 @@
+@use "../../styles.scss" as root;
+
+form {
+  display: flex;
+  position: relative;
+
+  input {
+    width: 30vw;
+    padding: 1rem;
+    border-radius: 1.5rem;
+    border: none;
+    font-size: 1rem;
+  }
+
+  #buttons-wrapper {
+    position: absolute;
+    left: 100%;
+    display: flex;
+    gap: 0.5rem;
+    margin-left: 0.5rem;
+  }
+
+  button {
+    padding: 1rem;
+    border-radius: 1.5rem;
+    border: none;
+    color: white;
+    background-color: root.$wh-blue;
+    font-size: 1rem;
+  }
+}
