@@ -1,0 +1,43 @@
+#room-scaffolding {
+  width: 100%;
+  display: flex;
+
+  video {
+    width: 50%;
+  }
+
+  #call-bar {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0px;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+
+    a {
+      text-decoration: none;
+      color: white;
+      position: absolute;
+      left: 10px;
+      margin: none;
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    button {
+      background-color: red;
+      border: none;
+      border-radius: 100%;
+      width: 48px;
+      height: 48px;
+      align-self: center;
+      justify-self: center;
+    }
+  }
+}
