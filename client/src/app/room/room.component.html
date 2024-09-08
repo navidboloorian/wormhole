@@ -1,22 +1,6 @@
 <div id="room-scaffolding">
-  <video
-    #video
-    (canplay)="video.play()"
-    (loadedmetadata)="video.muted = true"
-    aria-hidden="true"
-    loop
-  >
-    <source src="../../assets/background.mp4" />
-  </video>
-  <video
-    #video
-    (canplay)="video.play()"
-    (loadedmetadata)="video.muted = true"
-    aria-hidden="true"
-    loop
-  >
-    <source src="../../assets/background.mp4" />
-  </video>
+  <video #localVideo></video>
+  <video #remoteVideo></video>
   <div id="call-bar">
     <a routerLink=""><h1>Wormhole</h1></a>
     <button>
