@@ -15,6 +15,7 @@ export class RoomComponent implements AfterViewInit {
   constructor(private callService: CallService) {}
 
   ngAfterViewInit(): void {
+    this.callService.connectToWS('123');
     this.callService.initLocalVideo(this.localVideo);
   }
 }
