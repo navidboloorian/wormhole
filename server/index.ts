@@ -15,83 +15,42 @@ const server = app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
 
-type Rooms = {
-  [roomId: string]: WebSocket[];
-};
-
-// track rooms by id
-const rooms: Rooms = {};
-
-// link socket instances to rooms
-const occupants = new Map<WebSocket, { roomId: string; offer?: any }>();
-
 const wss = new WebSocketServer({ server, path: "/ws" });
+let offer: any = null;
 
 wss.on("connection", (ws) => {
+  if (wss.clients.size === 1) {
+    ws.send(JSON.stringify({ polite: false }));
+  } else if (wss.clients.size === 2) {
+    ws.send(JSON.stringify({ description: offer, polite: true }));
+  } else {
+    ws.close();
+  }
+
+  ws.on("close", () => {});
+
   ws.on("message", (data) => {
-    const message = JSON.parse(data.toString());
+    const { description, candidate } = JSON.parse(data.toString());
 
-    if (message.type === "INIT_CONN") {
-      const roomId = message.roomId;
-
-      if (rooms[roomId]) {
-        const occupant = rooms[roomId][0];
-        const offer = occupants.get(occupant)!.offer;
-
-        ws.send(JSON.stringify(offer));
-
-        rooms[roomId].push(ws);
-
-        console.log("THERE IS SOMEONE IN THE ROOM!");
-      } else rooms[roomId] = [ws];
-
-      occupants.set(ws, { roomId: roomId });
-
+    if (wss.clients.size === 1) {
+      offer = description;
       return;
     }
 
-    if (message.type === "OFFER") {
-      const offer = message.offer;
-      const config = occupants.get(ws)!;
-
-      config.offer = offer;
-
-      occupants.set(ws, config);
+    if (description) {
+      broadcast({ description }, ws);
+    } else {
+      broadcast({ candidate }, ws);
     }
-
-    wsBroadcast(data, ws);
   });
 
-  ws.on("close", () => {
-    const { roomId } = occupants.get(ws)!;
-    const room = rooms[roomId];
-
-    if (room) {
-      for (let i = 0; i < room.length; i++) {
-        const occupant = room[i];
-
-        if (occupant === ws) {
-          room.splice(i, 1);
-          break;
-        }
-      }
-    }
-
-    if (room.length === 0) {
-      delete rooms[roomId];
-    }
-
-    occupants.delete(ws);
-  });
+  ws.on("close", () => {});
 });
 
-const wsBroadcast = (data: any, sender: WebSocket) => {
-  const { roomId } = occupants.get(sender)!;
-  const room = rooms[roomId];
-
-  // for (const occupant of room) {
-  //   if (occupant !== sender) {
-  //     occupant.send(data);
-  //   }
-  // }
+const broadcast = (data: any, sender: WebSocket) => {
+  wss.clients.forEach((client) => {
+    if (client !== sender) {
+      client.send(JSON.stringify(data));
+    }
+  });
 };
