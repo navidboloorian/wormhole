@@ -11,6 +11,7 @@ export class CallService {
   audioSelect: ElementRef;
   selectedVideoId: string;
   selectedAudioId: string;
+  roomId: string;
 
   webSocket: WebSocket;
   peerConnection: RTCPeerConnection;
@@ -21,12 +22,14 @@ export class CallService {
     localVideo: ElementRef,
     remoteVideo: ElementRef,
     videoSelect: ElementRef,
-    audioSelect: ElementRef
+    audioSelect: ElementRef,
+    roomId: string
   ) {
     this.localVideo = localVideo;
     this.remoteVideo = remoteVideo;
     this.videoSelect = videoSelect;
     this.audioSelect = audioSelect;
+    this.roomId = roomId;
     this.polite = false;
     this.makingOffer = false;
 
@@ -105,6 +108,10 @@ export class CallService {
   };
 
   private _registerListeners = () => {
+    this.webSocket.onopen = () => {
+      this.webSocket.send(JSON.stringify({ roomId: this.roomId }));
+    };
+
     this.webSocket.onmessage = async (message) => {
       const { polite, description, candidate } = JSON.parse(message.data);
       let ignoreOffer = false;

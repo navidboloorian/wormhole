@@ -17,46 +17,70 @@ const server = app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
 
+type Room = {
+  offer: string;
+  members: Set<WebSocket>;
+};
+
+const rooms = new Map<string, Room>();
+
 const wss = new WebSocketServer({ server, path: "/ws" });
-let offer: any = null;
 
 wss.on("connection", async (ws) => {
+  let memberRoomId: string;
+
   ws.on("close", () => {
-    if (wss.clients.size === 0) {
-      offer = "";
-    } else if (wss.clients.size === 1) {
-      broadcast({ polite: false }, ws);
+    rooms.get(memberRoomId)!.members.delete(ws);
+
+    if (rooms.get(memberRoomId)!.members.size === 0) {
+      rooms.delete(memberRoomId);
+    } else if (rooms.get(memberRoomId)!.members.size === 1) {
+      broadcast({ polite: false }, memberRoomId, ws);
     }
   });
 
   ws.on("message", (data) => {
-    const { description, candidate } = JSON.parse(data.toString());
+    const { description, candidate, roomId } = JSON.parse(data.toString());
 
-    if (wss.clients.size === 1 && description) {
-      offer = description;
+    if (roomId) {
+      memberRoomId = roomId;
+
+      if (rooms.has(memberRoomId)) rooms.get(memberRoomId)!.members.add(ws);
+      else rooms.set(memberRoomId, { offer: "", members: new Set([ws]) });
+
+      if (rooms.get(memberRoomId)!.members.size === 1) {
+        ws.send(JSON.stringify({ polite: true }));
+      } else if (rooms.get(memberRoomId)!.members.size === 2) {
+        ws.send(
+          JSON.stringify({
+            description: rooms.get(memberRoomId!)!.offer,
+            polite: true,
+          })
+        );
+      } else {
+        ws.close();
+      }
+
+      return;
+    }
+
+    if (rooms.get(memberRoomId)!.members.size === 1 && description) {
+      rooms.get(memberRoomId)!.offer = description;
       return;
     }
 
     if (description) {
-      broadcast({ description }, ws);
+      broadcast({ description }, memberRoomId, ws);
     } else {
-      broadcast({ candidate }, ws);
+      broadcast({ candidate }, memberRoomId, ws);
     }
   });
-
-  if (wss.clients.size === 1) {
-    ws.send(JSON.stringify({ polite: true }));
-  } else if (wss.clients.size === 2) {
-    ws.send(JSON.stringify({ description: offer, polite: true }));
-  } else {
-    ws.close();
-  }
 });
 
-const broadcast = (data: any, sender?: WebSocket) => {
-  wss.clients.forEach((client) => {
-    if (client !== sender) {
-      client.send(JSON.stringify(data));
+const broadcast = (data: any, roomId: string, sender?: WebSocket) => {
+  rooms.get(roomId)!.members.forEach((member) => {
+    if (member !== sender) {
+      member.send(JSON.stringify(data));
     }
   });
 };

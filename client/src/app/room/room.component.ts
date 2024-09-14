@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CallService } from '../call.service';
 
 @Component({
@@ -15,14 +15,24 @@ export class RoomComponent implements AfterViewInit {
   @ViewChild('videoSelect') videoSelect: ElementRef;
   @ViewChild('audioSelect') audioSelect: ElementRef;
 
-  constructor(private callService: CallService) {}
+  roomId: string;
 
-  ngAfterViewInit(): void {
+  constructor(
+    private callService: CallService,
+    private route: ActivatedRoute
+  ) {}
+
+  ngOnInit() {
+    this.roomId = this.route.snapshot.paramMap.get('id') as string;
+  }
+
+  ngAfterViewInit() {
     this.callService.init(
       this.localVideo,
       this.remoteVideo,
       this.videoSelect,
-      this.audioSelect
+      this.audioSelect,
+      this.roomId
     );
   }
 }

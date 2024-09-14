@@ -9,7 +9,7 @@ export const routes: Routes = [
     title: 'Wormhole',
   },
   {
-    path: 'room',
+    path: 'room/:id',
     component: RoomComponent,
     title: 'Wormhole',
   },
