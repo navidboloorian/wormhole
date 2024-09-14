@@ -5,9 +5,12 @@ import { RowDataPacket } from "mysql2/promise";
 dotenv.config();
 
 export type Room = RowDataPacket & {
-  identifier: string;
-  creatorSDP?: string;
-  guestSDP?: string;
+  id: string;
+};
+
+export type Response = {
+  success?: Room | boolean;
+  error?: string[];
 };
 
 export const pool = mysql.createPool({
@@ -19,36 +22,67 @@ export const pool = mysql.createPool({
   enableKeepAlive: true,
 });
 
-export const getRoom = async (
-  identifier: string
-): Promise<Room | undefined> => {
-  const [room] = await pool.query<Room[]>(
-    "SELECT * FROM rooms WHERE identifier = ?",
-    [identifier]
-  );
+export const getRoom = async (id: string): Promise<Response> => {
+  try {
+    const [room] = await pool.query<Room[]>(
+      "SELECT * FROM rooms WHERE id = ?",
+      [id]
+    );
 
-  return room[0];
+    if (room.length > 0) {
+      return { success: room[0] };
+    } else {
+      return { error: ["Room does not exist."] };
+    }
+  } catch (err) {
+    console.error(err);
+    return { error: ["An unknown error occured."] };
+  }
 };
 
-export const createRoom = async (identifier: string): Promise<boolean> => {
-  const [result] = await pool.query<ResultSetHeader>(
-    "INSERT INTO rooms (identifier) VALUES (?)",
-    [identifier]
-  );
+export const createRoom = async (id: string): Promise<Response> => {
+  try {
+    if (id.length < 3) {
+      return { error: ["Room code must be between 3-64 characters long."] };
+    }
 
-  if (result.affectedRows === 0) return false;
-  else return true;
+    const [result] = await pool.query<ResultSetHeader>(
+      "INSERT INTO rooms (id) VALUES (?)",
+      [id]
+    );
+
+    if (result.affectedRows === 0) {
+      return { error: ["Room could not be created."] };
+    } else return { success: true };
+  } catch (err: any) {
+    console.error(err);
+
+    const errors = [];
+
+    if (err.code) {
+      switch (err.code) {
+        case "ER_DATA_TOO_LONG":
+          errors.push("Room code must be between 3-64 characters long.");
+          break;
+        case "ER_DUP_ENTRY":
+          errors.push("A room with this code already exists.");
+          break;
+        default:
+          errors.push("An unknown error occurred.");
+      }
+    }
+
+    return { error: errors };
+  }
 };
 
-export const deleteRoom = async (identifier: string): Promise<boolean> => {
-  const [result] = await pool.query<ResultSetHeader>(
-    "DELETE FROM rooms WHERE identifier = ?",
-    identifier
-  );
+export const deleteRoom = async (id: string): Promise<Response> => {
+  try {
+    await pool.query<ResultSetHeader>("DELETE FROM rooms WHERE id = ?", id);
 
-  if (result.affectedRows === 0) {
-    return false;
-  } else {
-    return true;
+    return { success: true };
+  } catch (err) {
+    console.error(err);
+    return { error: ["An unknown error occurred."] };
   }
 };

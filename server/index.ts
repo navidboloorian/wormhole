@@ -1,5 +1,6 @@
 import express, { Express } from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import roomRouter from "./routes/room";
 import { WebSocketServer, WebSocket } from "ws";
 
@@ -8,6 +9,7 @@ dotenv.config();
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(express.json());
 app.use("/room", roomRouter);
 
@@ -17,8 +19,6 @@ const server = app.listen(port, () => {
 
 const wss = new WebSocketServer({ server, path: "/ws" });
 let offer: any = null;
-
-const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 wss.on("connection", async (ws) => {
   ws.on("close", () => {

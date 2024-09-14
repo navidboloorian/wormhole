@@ -1,7 +1,16 @@
 <form>
-  <input type="text" placeholder="Room code" />
+  <input
+    type="text"
+    name="room-code"
+    placeholder="Room code"
+    [(ngModel)]="roomCode"
+  />
   <div id="buttons-wrapper">
-    <button>Create</button>
-    <button>Join</button>
+    <button (click)="createRoom()">Create</button>
+    <button (click)="getRoom()">Join</button>
+    <wh-snackbar
+      [type]="snackbarType"
+      [message]="snackbarMessage()"
+    ></wh-snackbar>
   </div>
 </form>

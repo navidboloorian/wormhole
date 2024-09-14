@@ -7,8 +7,8 @@ const router = express.Router();
 router.get("/:id", async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
-  const room = await getRoom(id);
-  res.status(200).send({ room: room });
+  const resp = await getRoom(id);
+  res.status(200).send(resp);
 });
 
 router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
@@ -21,12 +21,10 @@ router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
 });
 
 router.post("/", async (req: Request, res: Response) => {
-  const { identifier } = req.body;
+  const { id } = req.body;
 
-  const success = await createRoom(identifier);
-
-  if (success) res.status(200).send({ message: "Success" });
-  else res.status(404).send({ message: "Error" });
+  const resp = await createRoom(id);
+  res.status(200).send(resp);
 });
 
 export default router;

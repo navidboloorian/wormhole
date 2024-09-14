@@ -1,0 +1,23 @@
+#snackbar-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  position: fixed;
+  bottom: 25px;
+  left: 0px;
+
+  div {
+    padding: 1rem;
+    border-radius: 1.5rem;
+  }
+
+  .error {
+    color: white;
+    background-color: #ee2c2c;
+  }
+
+  .success {
+    color: white;
+    background-color: #4dbd33;
+  }
+}
