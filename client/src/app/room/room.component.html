@@ -1,10 +1,14 @@
 <div id="room-scaffolding">
-  <video #localVideo></video>
-  <video #remoteVideo></video>
+  <div id="local-video-mask"><video #localVideo id="local-video"></video></div>
+  <video #remoteVideo id="remote-video"></video>
   <div id="call-bar">
     <a routerLink=""><h1>Wormhole</h1></a>
-    <button>
-      <img src="../../assets/hang-up.png" width="32" />
-    </button>
+    <div id="controls">
+      <select #videoSelect></select>
+      <button>
+        <img src="../../assets/hang-up.png" width="32" />
+      </button>
+      <select #audioSelect></select>
+    </div>
   </div>
 </div>

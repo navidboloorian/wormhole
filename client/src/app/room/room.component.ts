@@ -12,10 +12,17 @@ import { CallService } from '../call.service';
 export class RoomComponent implements AfterViewInit {
   @ViewChild('localVideo') localVideo: ElementRef;
   @ViewChild('remoteVideo') remoteVideo: ElementRef;
+  @ViewChild('videoSelect') videoSelect: ElementRef;
+  @ViewChild('audioSelect') audioSelect: ElementRef;
 
   constructor(private callService: CallService) {}
 
   ngAfterViewInit(): void {
-    this.callService.init(this.localVideo, this.remoteVideo);
+    this.callService.init(
+      this.localVideo,
+      this.remoteVideo,
+      this.videoSelect,
+      this.audioSelect
+    );
   }
 }

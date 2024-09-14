@@ -19,20 +19,29 @@ const wss = new WebSocketServer({ server, path: "/ws" });
 let offer: any = null;
 
 wss.on("connection", (ws) => {
-  if (wss.clients.size === 1) {
-    ws.send(JSON.stringify({ polite: false }));
-  } else if (wss.clients.size === 2) {
-    ws.send(JSON.stringify({ description: offer, polite: true }));
-  } else {
-    ws.close();
+  try {
+    if (wss.clients.size === 1) {
+      ws.send(JSON.stringify({ polite: false }));
+    } else if (wss.clients.size === 2) {
+      console.log(offer);
+      ws.send(JSON.stringify({ description: offer, polite: true }));
+    } else {
+      ws.close();
+    }
+  } catch (err) {
+    console.error(err);
   }
 
-  ws.on("close", () => {});
+  ws.on("close", () => {
+    if (wss.clients.size === 1) {
+      broadcast({ polite: false }, ws);
+    }
+  });
 
   ws.on("message", (data) => {
     const { description, candidate } = JSON.parse(data.toString());
 
-    if (wss.clients.size === 1) {
+    if (wss.clients.size === 1 && description) {
       offer = description;
       return;
     }
