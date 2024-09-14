@@ -18,22 +18,13 @@ const server = app.listen(port, () => {
 const wss = new WebSocketServer({ server, path: "/ws" });
 let offer: any = null;
 
-wss.on("connection", (ws) => {
-  try {
-    if (wss.clients.size === 1) {
-      ws.send(JSON.stringify({ polite: false }));
-    } else if (wss.clients.size === 2) {
-      console.log(offer);
-      ws.send(JSON.stringify({ description: offer, polite: true }));
-    } else {
-      ws.close();
-    }
-  } catch (err) {
-    console.error(err);
-  }
+const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
+wss.on("connection", async (ws) => {
   ws.on("close", () => {
-    if (wss.clients.size === 1) {
+    if (wss.clients.size === 0) {
+      offer = "";
+    } else if (wss.clients.size === 1) {
       broadcast({ polite: false }, ws);
     }
   });
@@ -53,10 +44,16 @@ wss.on("connection", (ws) => {
     }
   });
 
-  ws.on("close", () => {});
+  if (wss.clients.size === 1) {
+    ws.send(JSON.stringify({ polite: true }));
+  } else if (wss.clients.size === 2) {
+    ws.send(JSON.stringify({ description: offer, polite: true }));
+  } else {
+    ws.close();
+  }
 });
 
-const broadcast = (data: any, sender: WebSocket) => {
+const broadcast = (data: any, sender?: WebSocket) => {
   wss.clients.forEach((client) => {
     if (client !== sender) {
       client.send(JSON.stringify(data));

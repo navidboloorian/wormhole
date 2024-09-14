@@ -36,15 +36,17 @@ export class CallService {
       video: true,
     });
 
-    this._initConnection();
+    this._initPeerConnection();
     await this._initSelect('videoinput');
     await this._initSelect('audioinput');
     this._initLocalVideo();
+
+    // need to create websocket right before initializing listeners, otherwise connection messages might be missed
+    this.webSocket = new WebSocket(`ws://${environment.apiUrl}/ws`);
     this._registerListeners();
   }
 
-  private _initConnection() {
-    this.webSocket = new WebSocket(`ws://${environment.apiUrl}/ws`);
+  private _initPeerConnection() {
     const configuration: RTCConfiguration = {
       iceServers: [
         {
@@ -103,55 +105,7 @@ export class CallService {
   };
 
   private _registerListeners = () => {
-    this.audioSelect.nativeElement.onchange = () => {
-      this.selectedAudioId = this.audioSelect.nativeElement.value;
-
-      this._initLocalVideo();
-    };
-
-    this.videoSelect.nativeElement.onchange = () => {
-      this.selectedVideoId = this.videoSelect.nativeElement.value;
-
-      this._initLocalVideo();
-    };
-
-    this.peerConnection.ontrack = ({ track, streams }) => {
-      const remoteVideo = this.remoteVideo.nativeElement as HTMLVideoElement;
-
-      track.onmute = () => {
-        if (remoteVideo.srcObject) return;
-      };
-
-      remoteVideo.srcObject = streams[0];
-      remoteVideo.play();
-    };
-
-    this.peerConnection.onconnectionstatechange = () => {
-      console.log(this.peerConnection.connectionState);
-    };
-
-    this.peerConnection.onicecandidate = ({ candidate }) => {
-      this.webSocket.send(JSON.stringify({ candidate }));
-    };
-
-    this.peerConnection.onnegotiationneeded = async () => {
-      try {
-        this.makingOffer = true;
-
-        await this.peerConnection.setLocalDescription();
-        this.webSocket.send(
-          JSON.stringify({ description: this.peerConnection.localDescription })
-        );
-      } catch (err) {
-        this.makingOffer = false;
-      } finally {
-        this.makingOffer = false;
-      }
-    };
-
     this.webSocket.onmessage = async (message) => {
-      console.log(message.data);
-
       const { polite, description, candidate } = JSON.parse(message.data);
       let ignoreOffer = false;
 
@@ -165,8 +119,6 @@ export class CallService {
               this.peerConnection.signalingState !== 'stable');
 
           ignoreOffer = !this.polite && offerCollision;
-
-          console.log(description.type);
 
           if (ignoreOffer) return;
 
@@ -191,6 +143,48 @@ export class CallService {
         }
       } catch (err) {
         console.error(err);
+      }
+    };
+
+    this.audioSelect.nativeElement.onchange = () => {
+      this.selectedAudioId = this.audioSelect.nativeElement.value;
+
+      this._initLocalVideo();
+    };
+
+    this.videoSelect.nativeElement.onchange = () => {
+      this.selectedVideoId = this.videoSelect.nativeElement.value;
+
+      this._initLocalVideo();
+    };
+
+    this.peerConnection.ontrack = ({ track, streams }) => {
+      const remoteVideo = this.remoteVideo.nativeElement as HTMLVideoElement;
+
+      track.onmute = () => {
+        if (remoteVideo.srcObject) return;
+      };
+
+      remoteVideo.srcObject = streams[0];
+      remoteVideo.play();
+    };
+
+    this.peerConnection.onicecandidate = ({ candidate }) => {
+      this.webSocket.send(JSON.stringify({ candidate }));
+    };
+
+    this.peerConnection.onnegotiationneeded = async () => {
+      try {
+        this.makingOffer = true;
+
+        await this.peerConnection.setLocalDescription();
+        this.webSocket.send(
+          JSON.stringify({ description: this.peerConnection.localDescription })
+        );
+      } catch (err) {
+        this.makingOffer = false;
+      } finally {
+        this.makingOffer = false;
       }
     };
   };
