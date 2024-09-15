@@ -1,6 +1,8 @@
 <div id="room-scaffolding">
   <video #localVideo id="local-video"></video>
-  <video #remoteVideo id="remote-video"></video>
+  <video #remoteVideo id="remote-video" autoplay>
+    <source src="../../assets/waiting.mp4" />
+  </video>
   <div id="call-bar">
     <span>
       <a routerLink=""><h1>Wormhole</h1></a>
@@ -9,7 +11,7 @@
     </span>
     <div id="controls">
       <select #videoSelect></select>
-      <button>
+      <button (click)="hangUp()">
         <img src="../../assets/hang-up.png" width="32" />
       </button>
       <select #audioSelect></select>

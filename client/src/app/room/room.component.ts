@@ -15,7 +15,6 @@ export class RoomComponent implements AfterViewInit {
   @ViewChild('remoteVideo') remoteVideo: ElementRef;
   @ViewChild('videoSelect') videoSelect: ElementRef;
   @ViewChild('audioSelect') audioSelect: ElementRef;
-
   roomId: string;
 
   constructor(
@@ -27,12 +26,16 @@ export class RoomComponent implements AfterViewInit {
 
   async ngOnInit() {
     this.roomId = this._route.snapshot.paramMap.get('id') as string;
-
     const resp = await this._roomService.getRoom(this.roomId);
 
     if (!resp.success) {
       this._router.navigate(['/']);
     }
+  }
+
+  hangUp() {
+    this._callService.hangUp();
+    this._router.navigate(['/']);
   }
 
   ngAfterViewInit() {

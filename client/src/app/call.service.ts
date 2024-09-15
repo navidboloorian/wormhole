@@ -49,6 +49,10 @@ export class CallService {
     this._registerListeners();
   }
 
+  public hangUp = () => {
+    this.peerConnection.close();
+  };
+
   private _initPeerConnection() {
     const configuration: RTCConfiguration = {
       iceServers: [
@@ -163,6 +167,13 @@ export class CallService {
       this.selectedVideoId = this.videoSelect.nativeElement.value;
 
       this._initLocalVideo();
+    };
+
+    this.peerConnection.onconnectionstatechange = () => {
+      if (this.peerConnection.connectionState === 'disconnected') {
+        const remoteVideo = this.remoteVideo.nativeElement as HTMLVideoElement;
+        remoteVideo.srcObject = null;
+      }
     };
 
     this.peerConnection.ontrack = ({ track, streams }) => {

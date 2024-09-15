@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import roomRouter from "./routes/room";
 import { WebSocketServer, WebSocket } from "ws";
+import { deleteRoom } from "./db";
 
 dotenv.config();
 
@@ -29,11 +30,17 @@ const wss = new WebSocketServer({ server, path: "/ws" });
 wss.on("connection", async (ws) => {
   let memberRoomId: string;
 
-  ws.on("close", () => {
+  ws.on("close", async () => {
     rooms.get(memberRoomId)!.members.delete(ws);
 
     if (rooms.get(memberRoomId)!.members.size === 0) {
-      rooms.delete(memberRoomId);
+      try {
+        // delete room when ever leaves it so the idea can be reused later
+        rooms.delete(memberRoomId);
+        await deleteRoom(memberRoomId);
+      } catch (err) {
+        console.error(err);
+      }
     } else if (rooms.get(memberRoomId)!.members.size === 1) {
       broadcast({ polite: false }, memberRoomId, ws);
     }
