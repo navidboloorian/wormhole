@@ -3,6 +3,7 @@
     type="text"
     name="room-code"
     placeholder="Room code"
+    (keypress)="preventChars($event)"
     [(ngModel)]="roomCode"
   />
   <div id="buttons-wrapper">

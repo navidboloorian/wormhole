@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CallService } from '../call.service';
+import { RoomService } from '../room.service';
 
 @Component({
   selector: 'wh-room',
@@ -18,16 +19,24 @@ export class RoomComponent implements AfterViewInit {
   roomId: string;
 
   constructor(
-    private callService: CallService,
-    private route: ActivatedRoute
+    private _callService: CallService,
+    private _roomService: RoomService,
+    private _route: ActivatedRoute,
+    private _router: Router
   ) {}
 
-  ngOnInit() {
-    this.roomId = this.route.snapshot.paramMap.get('id') as string;
+  async ngOnInit() {
+    this.roomId = this._route.snapshot.paramMap.get('id') as string;
+
+    const resp = await this._roomService.getRoom(this.roomId);
+
+    if (!resp.success) {
+      this._router.navigate(['/']);
+    }
   }
 
   ngAfterViewInit() {
-    this.callService.init(
+    this._callService.init(
       this.localVideo,
       this.remoteVideo,
       this.videoSelect,

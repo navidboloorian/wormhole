@@ -30,12 +30,24 @@
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
 
-    a {
+    span {
+      display: flex;
+      align-items: center;
       text-decoration: none;
       color: white;
       position: absolute;
       left: 10px;
       margin: none;
+      gap: 1rem;
+
+      a {
+        color: white;
+        text-decoration: none;
+      }
+
+      p {
+        font-size: 1.5rem;
+      }
     }
 
     h1 {

@@ -2,7 +2,11 @@
   <video #localVideo id="local-video"></video>
   <video #remoteVideo id="remote-video"></video>
   <div id="call-bar">
-    <a routerLink=""><h1>Wormhole</h1></a>
+    <span>
+      <a routerLink=""><h1>Wormhole</h1></a>
+      &#8226;
+      <p>{{ this.roomId }}</p>
+    </span>
     <div id="controls">
       <select #videoSelect></select>
       <button>

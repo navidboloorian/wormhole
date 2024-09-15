@@ -1,5 +1,3 @@
 <div id="snackbar-wrapper">
-  @if (message) {
-  <div [class]="type" #snackbar>{{ message }}</div>
-  }
+  <div *ngIf="message" [class]="type" #snackbar>{{ message }}</div>
 </div>
