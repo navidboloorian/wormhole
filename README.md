@@ -4,7 +4,9 @@ Wormhole is a peer-to-peer video calling application built with WebRTC.
 
 ## Demo
 
-![Demo Video Did Not Load]("wormhole_demo.mp4")
+![Demo Video Did Not Load](wormhole_demo.gif)
+
+Apologies for the choppy gif; unfortunately GitHub's file size limitations make it difficult to embed longer videos.
 
 ## How it works
 
